@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Our Love Diary</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --pink:#ffd6e8;
+      --accent:#ff4d6d;
+      --accent-dark:#c7324b;
+    }
+
+    html,body{height:100%;}
+    body{
+      margin:0;
+      min-height:100vh;
+      background:var(--pink);
+      font-family:"Times New Roman", serif;
+      padding:28px;
+      box-sizing:border-box;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      overflow-y:auto;
+    }
+
+    /* Floating hearts */
+    #hearts{
+      position:fixed;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      overflow:hidden;
+    }
+    #hearts span{
+      position:absolute;
+      left:0;
+      top:0;
+      transform:translate3d(0,0,0);
+      color:rgba(255,0,0,0.35);
+      animation-name:floatUp;
+      animation-iteration-count:infinite;
+      animation-timing-function:linear;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(0); opacity:1; }
+      100% { transform: translateY(-160vh); opacity:0.2; }
+    }
+
+    /* Cover */
+    .cover{
+      z-index:2;
+      width:min(760px,94%);
+      background:rgba(255,255,255,0.95);
+      border:3px solid var(--accent);
+      border-radius:20px;
+      padding:36px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.12);
+      text-align:center;
+      backdrop-filter: blur(6px);
+    }
+    .cover h1{
+      margin:0 0 10px;
+      font-size:34px;
+      color:#000;
+      font-weight:700;
+    }
+    .cover p{
+      margin:0 0 20px;
+      color:#333;
+      font-size:18px;
+      font-style:italic;
+    }
+    .enter-btn{
+      background:var(--accent);
+      color:#fff;
+      border:none;
+      padding:10px 20px;
+      border-radius:26px;
+      font-size:16px;
+      cursor:pointer;
+      font-weight:700;
+    }
+    .enter-btn:hover{ background:var(--accent-dark); }
+
+    /* Diary section */
+    .diary{
+      display:none;
+      z-index:2;
+      width:min(1200px,98%);
+      padding:26px;
+      box-sizing:border-box;
+    }
+    .diary .title{
+      text-align:center;
+      font-size:32px;
+      margin:0 0 12px;
+      color:#000;
+      font-weight:700;
+    }
+    .diary .shared-note{
+      text-align:center;
+      font-style:italic;
+      color:#333;
+      margin:0 0 26px;
+    }
+
+    .container{
+      display:flex;
+      gap:32px;
+      justify-content:center;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .column{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      width:460px;
+      max-width:46vw;
+      min-width:260px;
+    }
+    .note-title{
+      font-size:20px;
+      color:var(--accent);
+      font-weight:700;
+      text-align:center;
+    }
+    .note-box{
+      background:rgba(255,255,255,0.86);
+      border:2px solid var(--accent);
+      border-radius:12px;
+      height:360px;
+      padding:18px;
+      overflow-y:auto;
+      line-height:1.6;
+      font-size:16px;
+      color:#000;
+      white-space:pre-wrap;
+      background-image:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255,255,255,0.86) 0px,
+          rgba(255,255,255,0.86) 24px,
+          rgba(255,230,236,0.55) 25px
+        );
+    }
+
+    @media (max-width:980px){
+      .container{ flex-direction:column; align-items:center; }
+      .column{ width:86%; }
+    }
+  </style>
+</head>
+<body>
+  <div id="hearts"></div>
+
+  <!-- Cover with Diary heading -->
+  <div class="cover" id="cover">
+    <h1>📖 Our Love page 📖</h1>
+    <p>Filled with endless pages of us, our memories, and our forever 💕</p>
+    <button class="enter-btn" id="enterBtn">Open page with love</button>
+  </div>
+
+  <!-- Diary content -->
+  <div class="diary" id="diary">
+    <div class="title">Our Love page ❤️</div>
+    <div class="shared-note">“A story of two hearts, written forever…” 🌸</div>
+    <div class="container">
+      <div class="column">
+        <div class="note-title">About Her 💕</div>
+        <div id="aboutHer" class="note-box" contenteditable="true"></div>
+      </div>
+      <div class="column">
+        <div class="note-title">About Him 💖</div>
+        <div id="aboutHim" class="note-box" contenteditable="true"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <script>
+    // 👇 apna Firebase config daalo
+    const firebaseConfig = {
+   apiKey: "AIzaSyC3JTroCOY9GYeR2sWnPvfCgXsP4OU6cJQ",
+      authDomain: "love-diary-ccc61.firebaseapp.com",
+      projectId: "love-diary-ccc61",
+      storageBucket: "love-diary-ccc61.firebasestorage.app",
+      messagingSenderId: "128788220843",
+      appId: "1:128788220843:web:9df50d65c4d4749b9be0ee",
+      databaseURL: "https://love-diary-ccc61-default-rtdb.firebaseio.com/"
+	  };
+
+    // Firebase init
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    document.addEventListener('DOMContentLoaded',()=>{
+      // Floating hearts
+      const heartsEl=document.getElementById('hearts');
+      for(let i=0;i<80;i++){
+        const s=document.createElement('span');
+        s.textContent='❤';
+        s.style.left=Math.random()*100+'%';
+        s.style.top=Math.random()*100+'%';
+        s.style.fontSize=(10+Math.random()*25)+'px';
+        s.style.opacity=(0.25+Math.random()*0.6).toFixed(2);
+        s.style.animationDuration=(6+Math.random()*10).toFixed(1)+'s';
+        s.style.animationDelay=(Math.random()*-10).toFixed(1)+'s';
+        heartsEl.appendChild(s);
+      }
+
+      // Cover toggle
+      const cover=document.getElementById('cover');
+      const diary=document.getElementById('diary');
+      document.getElementById('enterBtn').addEventListener('click',()=>{
+        cover.style.display='none';
+        diary.style.display='block';
+      });
+
+      // Firebase sync
+      function setupSync(id){
+        const el=document.getElementById(id);
+        const ref=db.ref("notes/"+id);
+
+        // load from firebase
+        ref.on("value",snap=>{
+          if(snap.exists() && el.innerText!==snap.val()){
+            el.innerText=snap.val();
+          }
+        });
+
+        // save to firebase
+        el.addEventListener("input",()=>{
+          ref.set(el.innerText);
+        });
+      }
+
+      setupSync("aboutHer");
+      setupSync("aboutHim");
+    });
+  </script>
+</body>
+</html>

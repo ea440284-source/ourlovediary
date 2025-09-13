@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Our Love Diary 📖</title>
+  <style>
+    body {
+      margin:0;
+      min-height:100vh;
+      background:#ffd6e8;
+      font-family:"Times New Roman", serif;
+      position:relative;
+      overflow-y:auto;
+      padding:30px 0;
+    }
+
+    /* Floating hearts */
+    .hearts span {
+      position:absolute;
+      color:rgba(255,0,0,0.3);
+      font-size:20px;
+      animation-name:floatUp;
+      animation-timing-function:linear;
+      animation-iteration-count:infinite;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(0); opacity:1; }
+      100% { transform: translateY(-160vh); opacity:0.2; }
+    }
+
+    /* Top fixed text */
+    #topText {
+      text-align:center;
+      font-size:24px;
+      font-weight:bold;
+      color:#000;
+      margin-bottom:30px;
+      white-space:pre-line;
+    }
+
+    /* Pages container */
+    .page-container {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:25px;
+      width:100%;
+    }
+
+    /* Single diary page */
+    .page {
+      width:90%;
+      max-width:700px;
+      min-height:500px;
+      background:#fffaf3;
+      border:2px solid #ff4d6d;
+      border-radius:15px;
+      box-shadow:0 4px 6px rgba(0,0,0,0.1);
+      padding:25px;
+      font-size:18px;
+      color:#000;
+      outline:none;
+      cursor:text;
+      position:relative;
+      background-image: repeating-linear-gradient(to bottom, transparent 0px, transparent 23px, #ffccd5 24px);
+    }
+  </style>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+<body>
+  <div class="hearts" id="hearts"></div>
+
+  <!-- Top text -->
+  <div id="topText">
+    A Love Story That Never Ends🌸  
+    Yours forever, Emaan
+  </div>
+
+  <!-- Pages Container -->
+  <div class="page-container" id="pagesContainer"></div>
+
+  <script>
+    // 👇 Apna Firebase config yahan daalo
+    const firebaseConfig = {
+     apiKey: "AIzaSyC3JTroCOY9GYeR2sWnPvfCgXsP4OU6cJQ",
+      authDomain: "love-diary-ccc61.firebaseapp.com",
+      projectId: "love-diary-ccc61",
+      storageBucket: "love-diary-ccc61.firebasestorage.app",
+      messagingSenderId: "128788220843",
+      appId: "1:128788220843:web:9df50d65c4d4749b9be0ee",
+      databaseURL: "https://love-diary-ccc61-default-rtdb.firebaseio.com/"
+	  };
+
+    // Firebase init
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Floating hearts
+    const hearts = document.getElementById("hearts");
+    for(let i=0;i<100;i++){
+      const s = document.createElement("span");
+      s.innerHTML="❤";
+      s.style.top = Math.random()*100 + "%";
+      s.style.left = Math.random()*100 + "%";
+      s.style.fontSize = (12+Math.random()*25)+"px";
+      s.style.opacity = (0.2+Math.random()*0.6).toFixed(2);
+      s.style.animationDuration = (5+Math.random()*10) + "s";
+      s.style.animationDelay = (Math.random()*-10) + "s";
+      hearts.appendChild(s);
+    }
+
+    // Diary pages
+    const totalPages = 10; // jitne pages chahiye
+    const pagesContainer = document.getElementById("pagesContainer");
+
+    function setupSync(pageId, element){
+      const ref = db.ref("diary/pages/" + pageId);
+
+      // load from firebase
+      ref.on("value", snap=>{
+        if(snap.exists() && element.innerText !== snap.val()){
+          element.innerText = snap.val();
+        }
+      });
+
+      // save to firebase
+      element.addEventListener("input", ()=>{
+        ref.set(element.innerText);
+      });
+    }
+
+    // Create pages dynamically
+    for(let i=1;i<=totalPages;i++){
+      const page = document.createElement("div");
+      page.className="page";
+      page.contentEditable=true;
+      pagesContainer.appendChild(page);
+
+      setupSync("page_" + i, page);
+    }
+  </script>
+</body>
+</html>

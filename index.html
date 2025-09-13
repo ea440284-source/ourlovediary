@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Heeyyy Emaan Ki Jaan</title>
+  <style>
+    body {
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      background:#ffd6e8;
+      font-family:"Times New Roman", serif;
+      position:relative;
+      overflow:hidden;
+    }
+    .hearts span {
+      position:absolute;
+      color:rgba(255,0,0,0.35);
+      font-size:20px;
+      animation-name:floatUp;
+      animation-timing-function:linear;
+      animation-iteration-count:infinite;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(0); opacity:1; }
+      100% { transform: translateY(-160vh); opacity:0.2; }
+    }
+    h1 { font-size:48px; margin:10px 0; }
+    h2 { font-size:24px; margin:5px 0 30px; }
+    .buttons {
+      display:flex;
+      gap:25px;
+    }
+    .btn {
+      background:#fff;
+      border:2px solid #ff4d6d;
+      padding:18px 28px;
+      font-size:20px;
+      border-radius:15px;
+      cursor:pointer;
+      transition:0.3s;
+      text-decoration:none;
+      color:#000; /* black text */
+      font-weight:bold;
+      font-family:"Times New Roman", serif;
+      box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    }
+    .btn:hover { 
+      background:#ffebf0; 
+      transform:scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="hearts" id="hearts"></div>
+
+  <h1>Heeyyy Emaan ki jaan 🌸👻</h1>
+  <h2>A world full of love ❤️</h2>
+
+  <div class="buttons">
+    <a class="btn" href="love.html">💌 Our Love Page</a>
+    <a class="btn" href="dairy.html">📖 Our Diary</a>
+  </div>
+
+  <script>
+    // floating hearts
+    const hearts = document.getElementById("hearts");
+    for (let i=0; i<70; i++) {
+      const s = document.createElement("span");
+      s.innerHTML="❤";
+      s.style.top=Math.random()*100+"%";
+      s.style.left=Math.random()*100+"%";
+      s.style.fontSize=(12+Math.random()*32)+"px";
+      s.style.opacity=(0.3+Math.random()*0.5).toFixed(2);
+      s.style.animationDuration=(5+Math.random()*10)+"s"; // random speed
+      s.style.animationDelay=(Math.random()*-10)+"s";     // random start
+      hearts.appendChild(s);
+    }
+  </script>
+</body>
+</html>
